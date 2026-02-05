@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>daily check-in</title>
 
-  <!-- Title font -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Script&display=swap" rel="stylesheet">
 
   <style>
@@ -14,7 +13,6 @@
       --card: rgba(250,245,240,0.96);
       --ink: #2b1a1a;
       --muted: #6f4a4a;
-      --line: #e3d6cf;
       --dash: #d9c8c0;
       --title: #f6efe9;
       --shadow: 0 18px 40px rgba(0,0,0,.28);
@@ -37,17 +35,9 @@
         serif;
     }
 
-    .wrap{
-      max-width: 1040px;
-      margin: 0 auto;
-    }
+    .wrap{ max-width: 1040px; margin: 0 auto; }
 
-    /* ---------- HEADER ---------- */
-
-    header{
-      text-align: center;
-      margin-bottom: 42px;
-    }
+    header{ text-align: center; margin-bottom: 42px; }
 
     .date-line{
       font-size: 13px;
@@ -73,8 +63,6 @@
       line-height: 1.6;
     }
 
-    /* ---------- GRID ---------- */
-
     .grid{
       display:grid;
       grid-template-columns: 120px 1fr 1fr;
@@ -90,18 +78,8 @@
       text-align: center;
     }
 
-    .name{
-      margin:0 0 6px;
-      font-size: 18px;
-      font-weight: 600;
-    }
-
-    .meta{
-      margin:0;
-      font-size: 12.5px;
-      color: var(--muted);
-      line-height: 1.4;
-    }
+    .name{ margin:0 0 6px; font-size: 18px; font-weight: 600; }
+    .meta{ margin:0; font-size: 12.5px; color: var(--muted); line-height: 1.4; }
 
     .time{
       background: var(--card);
@@ -136,12 +114,7 @@
       background:#fff;
     }
 
-    .photo img{
-      width:100%;
-      height:100%;
-      object-fit: cover;
-      display:block;
-    }
+    .photo img{ width:100%; height:100%; object-fit: cover; display:block; }
 
     .empty{
       font-size: 13px;
@@ -170,8 +143,6 @@
       border: 1px solid #ccbaba;
     }
 
-    /* ---------- FOOTER ---------- */
-
     footer{
       margin-top: 26px;
       text-align: center;
@@ -189,8 +160,7 @@
   <div class="date-line" id="dateLine"></div>
   <h1>daily check-in</h1>
   <p class="subtitle">
-    Marta uploads at 10:00, 14:00, 18:00, 22:00 in Warsaw.<br>
-    Luca uploads at 10:00, 14:00, 18:00, 22:00 in West Lafayette.
+  Reset happens at 09:55 local time for each person. Uploads are at 10:00, 14:00, 18:00, 22:00.
   </p>
 </header>
 
@@ -207,7 +177,7 @@
 </div>
 
 <footer>
-  Upload a photo by opening the slot and attaching it to the GitHub page that appears.
+  Open a slot, attach the photo on GitHub, submit. The page checks for new uploads every minute.
 </footer>
 
 </div>
@@ -217,23 +187,56 @@
   const REPO  = "daily-checkin";
 
   const PEOPLE = {
-    marta: { tz: "Europe/Warsaw", label: "marta" },
-    luca:  { tz: "America/Indiana/Indianapolis", label: "luca" }
+    marta: { tz: "Europe/Warsaw", label: "marta", city: "Warsaw" },
+    luca:  { tz: "America/Indiana/Indianapolis", label: "luca", city: "West Lafayette" }
   };
 
   const HOURS = [10,14,18,22];
 
-  function ymd(date, tz){
+  const RESET_HOUR = 9;
+  const RESET_MIN  = 55;
+
+  function tzParts(tz){
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: tz,
+      year:"numeric", month:"2-digit", day:"2-digit",
+      hour:"2-digit", minute:"2-digit",
+      hour12:false
+    }).formatToParts(new Date());
+
+    const get = (t) => parts.find(p=>p.type===t).value;
+    return {
+      y: +get("year"),
+      m: +get("month"),
+      d: +get("day"),
+      hh: +get("hour"),
+      mm: +get("minute")
+    };
+  }
+
+  function ymdInTZFromDate(date, tz){
     const p = new Intl.DateTimeFormat("en-CA", {
       timeZone: tz, year:"numeric", month:"2-digit", day:"2-digit"
     }).formatToParts(date);
     return `${p.find(x=>x.type==="year").value}-${p.find(x=>x.type==="month").value}-${p.find(x=>x.type==="day").value}`;
   }
 
-  function prettyDate(tz){
-    return new Intl.DateTimeFormat("en-GB", {
+  function effectiveDateKey(tz){
+    const now = tzParts(tz);
+    const beforeReset = (now.hh < RESET_HOUR) || (now.hh === RESET_HOUR && now.mm < RESET_MIN);
+
+    const noonUTC = new Date(Date.UTC(now.y, now.m - 1, now.d, 12, 0, 0));
+    const target = beforeReset ? new Date(noonUTC.getTime() - 86400000) : noonUTC;
+
+    return ymdInTZFromDate(target, tz);
+  }
+
+  function prettyMeta(tz, city){
+    const nice = new Intl.DateTimeFormat("en-GB", {
       timeZone: tz, weekday:"long", year:"numeric", month:"long", day:"numeric"
     }).format(new Date());
+    const key = effectiveDateKey(tz);
+    return `${city} • ${nice} • showing: ${key}`;
   }
 
   function issueTitle(person, date, hour){
@@ -251,7 +254,7 @@
     const patterns = [
       /!\[[^\]]*\]\((https?:\/\/[^\s)]+)\)/i,
       /https?:\/\/github\.com\/user-attachments\/assets\/[^\s)]+/i,
-      /https?:\/\/user-images\.githubusercontent\.com\/[^\s)]+/i
+      /https?:\/\/user-images\.githubusercontent\.com\/[^\s)]+/i,
     ];
     for (const r of patterns){
       const m = body.match(r);
@@ -288,11 +291,11 @@
   function build(){
     const grid = document.getElementById("grid");
 
-    const todayM = ymd(new Date(), PEOPLE.marta.tz);
-    const todayL = ymd(new Date(), PEOPLE.luca.tz);
+    const dateM = effectiveDateKey(PEOPLE.marta.tz);
+    const dateL = effectiveDateKey(PEOPLE.luca.tz);
 
-    document.getElementById("martaMeta").textContent = prettyDate(PEOPLE.marta.tz);
-    document.getElementById("lucaMeta").textContent  = prettyDate(PEOPLE.luca.tz);
+    document.getElementById("martaMeta").textContent = prettyMeta(PEOPLE.marta.tz, PEOPLE.marta.city);
+    document.getElementById("lucaMeta").textContent  = prettyMeta(PEOPLE.luca.tz, PEOPLE.luca.city);
 
     document.getElementById("dateLine").textContent =
       new Intl.DateTimeFormat("en-US", { month:"2-digit", day:"2-digit", year:"numeric" })
@@ -305,33 +308,51 @@
       t.textContent = `${String(h).padStart(2,"0")}:00`;
       grid.appendChild(t);
 
-      grid.appendChild(makeCell("marta", todayM, h));
-      grid.appendChild(makeCell("luca", todayL, h));
+      grid.appendChild(makeCell("marta", dateM, h));
+      grid.appendChild(makeCell("luca", dateL, h));
     }
   }
 
   async function load(){
-    const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/issues?per_page=100&state=all`);
+    const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/issues?per_page=100&state=all&sort=created&direction=desc`);
     if (!res.ok) return;
     const issues = await res.json();
 
     const map = new Map();
     for (const it of issues){
       const img = extractImage(it.body || "");
-      if (img && !map.has(it.title)) map.set(it.title, img);
+      if (img && !map.has(it.title)) map.set(it.title, img); // newest wins
     }
 
     document.querySelectorAll(".cell").forEach(c=>{
       const img = map.get(c.dataset.key);
       if (img){
-        c.querySelector(".photo").innerHTML = `<img src="${img}">`;
+        c.querySelector(".photo").innerHTML = `<img alt="" src="${img}">`;
       }
     });
   }
 
   build();
   load();
+
   setInterval(load, 60000);
+
+  setInterval(() => {
+    const grid = document.getElementById("grid");
+    grid.innerHTML = `
+      <div></div>
+      <div class="head">
+        <p class="name">marta</p>
+        <p class="meta" id="martaMeta"></p>
+      </div>
+      <div class="head">
+        <p class="name">luca</p>
+        <p class="meta" id="lucaMeta"></p>
+      </div>
+    `;
+    build();
+    load();
+  }, 60000);
 </script>
 </body>
 </html>
