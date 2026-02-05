@@ -1,0 +1,179 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Daily Check-ins</title>
+  <style>
+    body { font-family: system-ui, Arial; margin: 0; padding: 18px; background: #fafafa; }
+    .wrap { max-width: 980px; margin: 0 auto; }
+    h1 { margin: 0 0 6px; font-size: 22px; }
+    .sub { margin: 0 0 16px; color: #444; font-size: 14px; }
+    .grid { display: grid; grid-template-columns: 140px 1fr 1fr; gap: 10px; align-items: stretch; }
+    .head { font-weight: 700; padding: 10px; border-radius: 12px; background: #fff; border: 1px solid #e5e5e5; }
+    .time { display:flex; align-items:center; justify-content:center; font-weight:700; background:#fff; border:1px solid #e5e5e5; border-radius:12px; }
+    .cell { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 10px; min-height: 140px; display:flex; flex-direction:column; gap:10px; }
+    .box { flex: 1; border-radius: 10px; border: 1px dashed #ddd; background: #fff; display:flex; align-items:center; justify-content:center; overflow:hidden; min-height: 120px;}
+    .box img { width:100%; height:100%; object-fit: cover; display:block; }
+    .missing { color:#999; font-size: 13px; }
+    .btns { display:flex; gap:8px; flex-wrap: wrap; }
+    a.btn {
+      display:inline-block; padding:8px 10px; border-radius:10px;
+      border:1px solid #111; text-decoration:none; color:#111; background:#fff; font-size: 13px;
+    }
+    .small { color:#666; font-size: 12px; margin-top: 14px; }
+    .pill { display:inline-block; padding:2px 8px; border:1px solid #ddd; border-radius:999px; font-size:12px; background:#fff; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Daily photo check-ins</h1>
+  <p class="sub">
+    Marta uploads at <span class="pill">10 / 14 / 18 / 22</span> in <b>Warsaw</b>.
+    Luca uploads at <span class="pill">10 / 14 / 18 / 22</span> in <b>West Lafayette</b>.
+  </p>
+
+  <div class="grid" id="grid">
+    <div class="head"></div>
+    <div class="head" id="martaHead"></div>
+    <div class="head" id="lucaHead"></div>
+  </div>
+
+  <div class="small">
+    Upload: tap “Upload” → a GitHub Issue opens → drag & drop the photo into the big text box → <b>Submit new issue</b>.
+  </div>
+</div>
+
+<script>
+  const OWNER = "martaodomirska";
+  const REPO  = "daily-checkin";
+
+  const PEOPLE = {
+    marta: { name: "marta", tz: "Europe/Warsaw" },
+    luca:  { name: "luca",  tz: "America/Indiana/Indianapolis" }
+  };
+
+  const HOURS = [10, 14, 18, 22];
+
+  function ymdInTZ(date, tz) {
+    const parts = new Intl.DateTimeFormat("en-CA", { timeZone: tz, year:"numeric", month:"2-digit", day:"2-digit" }).formatToParts(date);
+    const y = parts.find(p=>p.type==="year").value;
+    const m = parts.find(p=>p.type==="month").value;
+    const d = parts.find(p=>p.type==="day").value;
+    return `${y}-${m}-${d}`;
+  }
+
+  function prettyDateTZ(tz) {
+    const d = new Date();
+    return new Intl.DateTimeFormat("en-GB", { timeZone: tz, weekday:"short", year:"numeric", month:"2-digit", day:"2-digit" }).format(d);
+  }
+
+  function issueTitle(person, dateStr, hour) {
+    return `${person} ${dateStr} ${String(hour).padStart(2,"0")}:00`;
+  }
+
+  function newIssueUrl(person, dateStr, hour) {
+    const title = encodeURIComponent(issueTitle(person, dateStr, hour));
+    const labels = encodeURIComponent(`${person},${hour}`);
+    const body = encodeURIComponent(
+`Drop the photo below (drag & drop).
+Time slot: ${String(hour).padStart(2,"0")}:00
+Date (your timezone): ${dateStr}`
+    );
+    return `https://github.com/${OWNER}/${REPO}/issues/new?title=${title}&labels=${labels}&body=${body}`;
+  }
+
+  function extractFirstImageUrl(body) {
+    const md = body.match(/!\[[^\]]*\]\((https?:\/\/[^\s)]+)\)/i);
+    if (md) return md[1];
+
+    const ua = body.match(/https?:\/\/github\.com\/user-attachments\/assets\/[^\s)]+/i);
+    if (ua) return ua[0];
+
+    const ui = body.match(/https?:\/\/user-images\.githubusercontent\.com\/[^\s)]+/i);
+    if (ui) return ui[0];
+
+    const any = body.match(/https?:\/\/[^\s)]+\.(png|jpg|jpeg|webp|gif)/i);
+    if (any) return any[0];
+
+    return null;
+  }
+
+  function makeCell(person, dateStr, hour) {
+    const cell = document.createElement("div");
+    cell.className = "cell";
+    cell.dataset.person = person;
+    cell.dataset.date = dateStr;
+    cell.dataset.hour = String(hour);
+
+    const box = document.createElement("div");
+    box.className = "box";
+    box.innerHTML = `<div class="missing">white box = not uploaded yet</div>`;
+    cell.appendChild(box);
+
+    const btns = document.createElement("div");
+    btns.className = "btns";
+
+    const a = document.createElement("a");
+    a.className = "btn";
+    a.href = newIssueUrl(person, dateStr, hour);
+    a.target = "_blank";
+    a.textContent = "Upload";
+    btns.appendChild(a);
+
+    cell.appendChild(btns);
+    return cell;
+  }
+
+  function buildGrid() {
+    const grid = document.getElementById("grid");
+    const todayMarta = ymdInTZ(new Date(), PEOPLE.marta.tz);
+    const todayLuca  = ymdInTZ(new Date(), PEOPLE.luca.tz);
+
+    document.getElementById("martaHead").textContent = `marta — ${prettyDateTZ(PEOPLE.marta.tz)} (${todayMarta})`;
+    document.getElementById("lucaHead").textContent  = `luca — ${prettyDateTZ(PEOPLE.luca.tz)} (${todayLuca})`;
+
+    for (const h of HOURS) {
+      const time = document.createElement("div");
+      time.className = "time";
+      time.textContent = `${String(h).padStart(2,"0")}:00`;
+      grid.appendChild(time);
+
+      grid.appendChild(makeCell("marta", todayMarta, h));
+      grid.appendChild(makeCell("luca", todayLuca, h));
+    }
+  }
+
+  async function loadIssuesAndFill() {
+    const url = `https://api.github.com/repos/${OWNER}/${REPO}/issues?state=all&per_page=100&sort=created&direction=desc`;
+    const res = await fetch(url, { headers: { "Accept": "application/vnd.github+json" } });
+    if (!res.ok) return;
+
+    const issues = await res.json();
+    const map = new Map();
+
+    for (const it of issues) {
+      if (!it || !it.title || !it.body) continue;
+      const img = extractFirstImageUrl(it.body);
+      if (!img) continue;
+      if (!map.has(it.title)) map.set(it.title, img); // newest wins
+    }
+
+    document.querySelectorAll(".cell").forEach(cell => {
+      const person = cell.dataset.person;
+      const dateStr = cell.dataset.date;
+      const hour = Number(cell.dataset.hour);
+      const key = issueTitle(person, dateStr, hour);
+      const imgUrl = map.get(key);
+
+      const box = cell.querySelector(".box");
+      if (imgUrl) box.innerHTML = `<img alt="${key}" src="${imgUrl}">`;
+    });
+  }
+
+  buildGrid();
+  loadIssuesAndFill();
+  setInterval(loadIssuesAndFill, 60000);
+</script>
+</body>
+</html>
