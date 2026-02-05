@@ -5,42 +5,209 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Daily Check-ins</title>
   <style>
-    body { font-family: system-ui, Arial; margin: 0; padding: 18px; background: #fafafa; }
-    .wrap { max-width: 980px; margin: 0 auto; }
-    h1 { margin: 0 0 6px; font-size: 22px; }
-    .sub { margin: 0 0 16px; color: #444; font-size: 14px; }
-    .grid { display: grid; grid-template-columns: 140px 1fr 1fr; gap: 10px; align-items: stretch; }
-    .head { font-weight: 700; padding: 10px; border-radius: 12px; background: #fff; border: 1px solid #e5e5e5; }
-    .time { display:flex; align-items:center; justify-content:center; font-weight:700; background:#fff; border:1px solid #e5e5e5; border-radius:12px; }
-    .cell { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 10px; min-height: 140px; display:flex; flex-direction:column; gap:10px; }
-    .box { flex: 1; border-radius: 10px; border: 1px dashed #ddd; background: #fff; display:flex; align-items:center; justify-content:center; overflow:hidden; min-height: 120px;}
-    .box img { width:100%; height:100%; object-fit: cover; display:block; }
-    .missing { color:#999; font-size: 13px; }
-    .btns { display:flex; gap:8px; flex-wrap: wrap; }
-    a.btn {
-      display:inline-block; padding:8px 10px; border-radius:10px;
-      border:1px solid #111; text-decoration:none; color:#111; background:#fff; font-size: 13px;
+    :root{
+      --bg: #fbf7ff;
+      --card: #ffffff;
+      --ink: #1b1b1f;
+      --muted:#5b5b66;
+      --line:#e9e2f4;
+      --dash:#ded3f0;
+      --shadow: 0 10px 30px rgba(27,27,31,.08);
+      --radius: 18px;
     }
-    .small { color:#666; font-size: 12px; margin-top: 14px; }
-    .pill { display:inline-block; padding:2px 8px; border:1px solid #ddd; border-radius:999px; font-size:12px; background:#fff; }
+
+    *{ box-sizing: border-box; }
+    body{
+      margin:0; padding:22px;
+      font-family: ui-rounded, system-ui, -apple-system, Segoe UI, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 700px at 20% 0%, #ffe9f3 0%, rgba(255,233,243,0) 55%),
+        radial-gradient(1100px 650px at 90% 10%, #e9f2ff 0%, rgba(233,242,255,0) 55%),
+        radial-gradient(900px 700px at 50% 100%, #f0e9ff 0%, rgba(240,233,255,0) 60%),
+        var(--bg);
+      color: var(--ink);
+    }
+
+    .wrap{ max-width: 980px; margin:0 auto; }
+    .top{
+      display:flex; flex-wrap:wrap; gap:14px;
+      align-items:flex-end; justify-content:space-between;
+      margin-bottom: 14px;
+    }
+    h1{
+      margin:0;
+      font-size: 26px;
+      letter-spacing: .2px;
+    }
+    .subtitle{
+      margin:0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+    .note{
+      background: rgba(255,255,255,.65);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: var(--muted);
+      box-shadow: 0 6px 18px rgba(27,27,31,.05);
+      backdrop-filter: blur(6px);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 120px 1fr 1fr;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .head{
+      background: rgba(255,255,255,.8);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px 14px 12px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(6px);
+    }
+    .head .name{
+      font-weight: 800;
+      font-size: 16px;
+      margin:0 0 4px;
+      display:flex; align-items:center; gap:8px;
+    }
+    .head .meta{
+      margin:0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+    .time{
+      display:flex; align-items:center; justify-content:center;
+      background: rgba(255,255,255,.8);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      font-weight: 800;
+      color: #3a2b57;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(6px);
+    }
+
+    .cell{
+      background: rgba(255,255,255,.86);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 12px;
+      min-height: 170px;
+      box-shadow: var(--shadow);
+      display:flex; flex-direction:column; gap:10px;
+      backdrop-filter: blur(6px);
+    }
+
+    /* cute “polaroid” photo area */
+    .polaroid{
+      position: relative;
+      flex: 1;
+      border-radius: 14px;
+      background: #fff;
+      border: 1px dashed var(--dash);
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height: 120px;
+    }
+    .polaroid::after{
+      /* subtle “tape” accent */
+      content:"";
+      position:absolute;
+      top:10px; left:10px;
+      width:58px; height:18px;
+      background: rgba(255, 232, 243, .9);
+      border: 1px solid rgba(255, 196, 220, .7);
+      border-radius: 6px;
+      transform: rotate(-6deg);
+      opacity: .75;
+    }
+    .polaroid img{
+      width:100%;
+      height:100%;
+      object-fit: cover;
+      display:block;
+    }
+    .missing{
+      text-align:center;
+      color:#8b86a0;
+      font-size: 13px;
+      padding: 14px;
+      line-height: 1.3;
+    }
+
+    .btnrow{ display:flex; gap:8px; flex-wrap:wrap; }
+    a.btn{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 9px 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(27,27,31,.18);
+      background: rgba(255,255,255,.9);
+      text-decoration:none;
+      color: var(--ink);
+      font-size: 12.5px;
+      font-weight: 700;
+      box-shadow: 0 8px 18px rgba(27,27,31,.06);
+      transition: transform .06s ease, box-shadow .12s ease;
+    }
+    a.btn:hover{
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(27,27,31,.09);
+    }
+
+    .footer{
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+      background: rgba(255,255,255,.65);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      box-shadow: 0 8px 22px rgba(27,27,31,.05);
+      backdrop-filter: blur(6px);
+    }
+    .tiny{ opacity: .9; }
   </style>
 </head>
+
 <body>
 <div class="wrap">
-  <h1>Daily photo check-ins</h1>
-  <p class="sub">
-    Marta uploads at <span class="pill">10 / 14 / 18 / 22</span> in <b>Warsaw</b>.
-    Luca uploads at <span class="pill">10 / 14 / 18 / 22</span> in <b>West Lafayette</b>.
-  </p>
-
-  <div class="grid" id="grid">
-    <div class="head"></div>
-    <div class="head" id="martaHead"></div>
-    <div class="head" id="lucaHead"></div>
+  <div class="top">
+    <div>
+      <h1>daily check-ins ✨</h1>
+      <p class="subtitle">
+        Two people, same four moments. Upload at <b>10:00</b>, <b>14:00</b>, <b>18:00</b>, <b>22:00</b> in your <i>own</i> timezone.
+      </p>
+    </div>
+    <div class="note">white = not uploaded yet 🤍</div>
   </div>
 
-  <div class="small">
-    Upload: tap “Upload” → a GitHub Issue opens → drag & drop the photo into the big text box → <b>Submit new issue</b>.
+  <div class="grid" id="grid">
+    <div></div>
+    <div class="head">
+      <p class="name">marta ✿</p>
+      <p class="meta" id="martaMeta"></p>
+    </div>
+    <div class="head">
+      <p class="name">luca ✦</p>
+      <p class="meta" id="lucaMeta"></p>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div><b>How to upload:</b> tap “Upload” → GitHub opens → drag & drop the photo into the big text box → <b>Submit new issue</b>.</div>
+    <div class="tiny">Tip: if the photo doesn’t show instantly, refresh — the page also checks every minute.</div>
   </div>
 </div>
 
@@ -49,26 +216,33 @@
   const REPO  = "daily-checkin";
 
   const PEOPLE = {
-    marta: { name: "marta", tz: "Europe/Warsaw" },
-    luca:  { name: "luca",  tz: "America/Indiana/Indianapolis" }
+    marta: { tz: "Europe/Warsaw", label: "marta" },
+    luca:  { tz: "America/Indiana/Indianapolis", label: "luca" } // West Lafayette
   };
 
   const HOURS = [10, 14, 18, 22];
 
   function ymdInTZ(date, tz) {
-    const parts = new Intl.DateTimeFormat("en-CA", { timeZone: tz, year:"numeric", month:"2-digit", day:"2-digit" }).formatToParts(date);
+    const parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: tz, year:"numeric", month:"2-digit", day:"2-digit"
+    }).formatToParts(date);
     const y = parts.find(p=>p.type==="year").value;
     const m = parts.find(p=>p.type==="month").value;
     const d = parts.find(p=>p.type==="day").value;
     return `${y}-${m}-${d}`;
   }
 
-  function prettyDateTZ(tz) {
+  function prettyMeta(tz, cityLabel) {
     const d = new Date();
-    return new Intl.DateTimeFormat("en-GB", { timeZone: tz, weekday:"short", year:"numeric", month:"2-digit", day:"2-digit" }).format(d);
+    const nice = new Intl.DateTimeFormat("en-GB", {
+      timeZone: tz, weekday:"long", year:"numeric", month:"2-digit", day:"2-digit"
+    }).format(d);
+    const code = ymdInTZ(d, tz);
+    return `${cityLabel} • ${nice} (${code})`;
   }
 
   function issueTitle(person, dateStr, hour) {
+    // exact key used for matching
     return `${person} ${dateStr} ${String(hour).padStart(2,"0")}:00`;
   }
 
@@ -77,22 +251,26 @@
     const labels = encodeURIComponent(`${person},${hour}`);
     const body = encodeURIComponent(
 `Drop the photo below (drag & drop).
-Time slot: ${String(hour).padStart(2,"0")}:00
+Slot: ${String(hour).padStart(2,"0")}:00
 Date (your timezone): ${dateStr}`
     );
     return `https://github.com/${OWNER}/${REPO}/issues/new?title=${title}&labels=${labels}&body=${body}`;
   }
 
   function extractFirstImageUrl(body) {
+    // markdown image
     const md = body.match(/!\[[^\]]*\]\((https?:\/\/[^\s)]+)\)/i);
     if (md) return md[1];
 
+    // new github user-attachments
     const ua = body.match(/https?:\/\/github\.com\/user-attachments\/assets\/[^\s)]+/i);
     if (ua) return ua[0];
 
+    // older user-images
     const ui = body.match(/https?:\/\/user-images\.githubusercontent\.com\/[^\s)]+/i);
     if (ui) return ui[0];
 
+    // last resort
     const any = body.match(/https?:\/\/[^\s)]+\.(png|jpg|jpeg|webp|gif)/i);
     if (any) return any[0];
 
@@ -106,32 +284,40 @@ Date (your timezone): ${dateStr}`
     cell.dataset.date = dateStr;
     cell.dataset.hour = String(hour);
 
-    const box = document.createElement("div");
-    box.className = "box";
-    box.innerHTML = `<div class="missing">white box = not uploaded yet</div>`;
-    cell.appendChild(box);
+    const photo = document.createElement("div");
+    photo.className = "polaroid";
+    photo.innerHTML = `<div class="missing">not yet<br>🤍</div>`;
+    cell.appendChild(photo);
 
-    const btns = document.createElement("div");
-    btns.className = "btns";
+    const btnrow = document.createElement("div");
+    btnrow.className = "btnrow";
 
-    const a = document.createElement("a");
-    a.className = "btn";
-    a.href = newIssueUrl(person, dateStr, hour);
-    a.target = "_blank";
-    a.textContent = "Upload";
-    btns.appendChild(a);
+    const up = document.createElement("a");
+    up.className = "btn";
+    up.href = newIssueUrl(person, dateStr, hour);
+    up.target = "_blank";
+    up.textContent = "Upload ⤴";
+    btnrow.appendChild(up);
 
-    cell.appendChild(btns);
+    const view = document.createElement("a");
+    view.className = "btn";
+    view.href = `https://github.com/${OWNER}/${REPO}/issues?q=${encodeURIComponent(issueTitle(person, dateStr, hour))}`;
+    view.target = "_blank";
+    view.textContent = "See uploads ↗";
+    btnrow.appendChild(view);
+
+    cell.appendChild(btnrow);
     return cell;
   }
 
   function buildGrid() {
     const grid = document.getElementById("grid");
+
     const todayMarta = ymdInTZ(new Date(), PEOPLE.marta.tz);
     const todayLuca  = ymdInTZ(new Date(), PEOPLE.luca.tz);
 
-    document.getElementById("martaHead").textContent = `marta — ${prettyDateTZ(PEOPLE.marta.tz)} (${todayMarta})`;
-    document.getElementById("lucaHead").textContent  = `luca — ${prettyDateTZ(PEOPLE.luca.tz)} (${todayLuca})`;
+    document.getElementById("martaMeta").textContent = prettyMeta(PEOPLE.marta.tz, "Warsaw");
+    document.getElementById("lucaMeta").textContent  = prettyMeta(PEOPLE.luca.tz, "West Lafayette");
 
     for (const h of HOURS) {
       const time = document.createElement("div");
@@ -150,13 +336,14 @@ Date (your timezone): ${dateStr}`
     if (!res.ok) return;
 
     const issues = await res.json();
-    const map = new Map();
 
+    // title -> img (newest wins)
+    const map = new Map();
     for (const it of issues) {
       if (!it || !it.title || !it.body) continue;
       const img = extractFirstImageUrl(it.body);
       if (!img) continue;
-      if (!map.has(it.title)) map.set(it.title, img); // newest wins
+      if (!map.has(it.title)) map.set(it.title, img);
     }
 
     document.querySelectorAll(".cell").forEach(cell => {
@@ -166,8 +353,10 @@ Date (your timezone): ${dateStr}`
       const key = issueTitle(person, dateStr, hour);
       const imgUrl = map.get(key);
 
-      const box = cell.querySelector(".box");
-      if (imgUrl) box.innerHTML = `<img alt="${key}" src="${imgUrl}">`;
+      const photo = cell.querySelector(".polaroid");
+      if (imgUrl) {
+        photo.innerHTML = `<img alt="${key}" src="${imgUrl}">`;
+      }
     });
   }
 
