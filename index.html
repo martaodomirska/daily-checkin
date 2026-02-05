@@ -1,214 +1,215 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Daily Check-ins</title>
+  <title>daily check-in</title>
+
+  <!-- Title font -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Script&display=swap" rel="stylesheet">
+
   <style>
     :root{
-      --bg: #fbf7ff;
-      --card: #ffffff;
-      --ink: #1b1b1f;
-      --muted:#5b5b66;
-      --line:#e9e2f4;
-      --dash:#ded3f0;
-      --shadow: 0 10px 30px rgba(27,27,31,.08);
+      --bg: #800000;
+      --card: rgba(250,245,240,0.96);
+      --ink: #2b1a1a;
+      --muted: #6f4a4a;
+      --line: #e3d6cf;
+      --dash: #d9c8c0;
+      --title: #f6efe9;
+      --shadow: 0 18px 40px rgba(0,0,0,.28);
       --radius: 18px;
     }
 
-    *{ box-sizing: border-box; }
+    * { box-sizing: border-box; }
+
     body{
-      margin:0; padding:22px;
-      font-family: ui-rounded, system-ui, -apple-system, Segoe UI, Arial, sans-serif;
-      background:
-        radial-gradient(1200px 700px at 20% 0%, #ffe9f3 0%, rgba(255,233,243,0) 55%),
-        radial-gradient(1100px 650px at 90% 10%, #e9f2ff 0%, rgba(233,242,255,0) 55%),
-        radial-gradient(900px 700px at 50% 100%, #f0e9ff 0%, rgba(240,233,255,0) 60%),
-        var(--bg);
+      margin:0;
+      padding:36px 28px 40px;
+      background: var(--bg);
       color: var(--ink);
+      font-family:
+        "Iowan Old Style",
+        "Palatino Linotype",
+        "Book Antiqua",
+        Palatino,
+        Georgia,
+        serif;
     }
 
-    .wrap{ max-width: 980px; margin:0 auto; }
-    .top{
-      display:flex; flex-wrap:wrap; gap:14px;
-      align-items:flex-end; justify-content:space-between;
-      margin-bottom: 14px;
+    .wrap{
+      max-width: 1040px;
+      margin: 0 auto;
     }
-    h1{
-      margin:0;
-      font-size: 26px;
-      letter-spacing: .2px;
+
+    /* ---------- HEADER ---------- */
+
+    header{
+      text-align: center;
+      margin-bottom: 42px;
     }
-    .subtitle{
-      margin:0;
-      color: var(--muted);
+
+    .date-line{
       font-size: 13px;
-      line-height: 1.35;
+      letter-spacing: 2px;
+      color: #f0dede;
+      margin-bottom: 10px;
     }
-    .note{
-      background: rgba(255,255,255,.65);
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      padding: 8px 12px;
-      font-size: 12px;
-      color: var(--muted);
-      box-shadow: 0 6px 18px rgba(27,27,31,.05);
-      backdrop-filter: blur(6px);
+
+    h1{
+      margin: 0 0 14px;
+      font-family: 'Playfair Script', serif;
+      font-weight: 400;
+      font-size: 64px;
+      letter-spacing: 0.8px;
+      color: var(--title);
+      text-rendering: optimizeLegibility;
     }
+
+    .subtitle{
+      margin: 0;
+      font-size: 14px;
+      color: #f0dede;
+      line-height: 1.6;
+    }
+
+    /* ---------- GRID ---------- */
 
     .grid{
       display:grid;
       grid-template-columns: 120px 1fr 1fr;
-      gap: 12px;
+      gap: 16px;
       align-items: stretch;
     }
 
     .head{
-      background: rgba(255,255,255,.8);
-      border: 1px solid var(--line);
+      background: var(--card);
       border-radius: var(--radius);
-      padding: 14px 14px 12px;
+      padding: 18px;
       box-shadow: var(--shadow);
-      backdrop-filter: blur(6px);
+      text-align: center;
     }
-    .head .name{
-      font-weight: 800;
-      font-size: 16px;
-      margin:0 0 4px;
-      display:flex; align-items:center; gap:8px;
+
+    .name{
+      margin:0 0 6px;
+      font-size: 18px;
+      font-weight: 600;
     }
-    .head .meta{
+
+    .meta{
       margin:0;
+      font-size: 12.5px;
       color: var(--muted);
-      font-size: 12px;
-      line-height: 1.35;
+      line-height: 1.4;
     }
+
     .time{
-      display:flex; align-items:center; justify-content:center;
-      background: rgba(255,255,255,.8);
-      border: 1px solid var(--line);
+      background: var(--card);
       border-radius: var(--radius);
-      font-weight: 800;
-      color: #3a2b57;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(6px);
-    }
-
-    .cell{
-      background: rgba(255,255,255,.86);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 12px;
-      min-height: 170px;
-      box-shadow: var(--shadow);
-      display:flex; flex-direction:column; gap:10px;
-      backdrop-filter: blur(6px);
-    }
-
-    /* cute “polaroid” photo area */
-    .polaroid{
-      position: relative;
-      flex: 1;
-      border-radius: 14px;
-      background: #fff;
-      border: 1px dashed var(--dash);
-      overflow:hidden;
       display:flex;
       align-items:center;
       justify-content:center;
-      min-height: 120px;
+      font-weight: 600;
+      font-size: 15px;
+      box-shadow: var(--shadow);
     }
-    .polaroid::after{
-      /* subtle “tape” accent */
-      content:"";
-      position:absolute;
-      top:10px; left:10px;
-      width:58px; height:18px;
-      background: rgba(255, 232, 243, .9);
-      border: 1px solid rgba(255, 196, 220, .7);
-      border-radius: 6px;
-      transform: rotate(-6deg);
-      opacity: .75;
+
+    .cell{
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 14px;
+      min-height: 190px;
+      box-shadow: var(--shadow);
+      display:flex;
+      flex-direction:column;
+      gap:12px;
     }
-    .polaroid img{
+
+    .photo{
+      flex:1;
+      border-radius: 14px;
+      border: 1px dashed var(--dash);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      background:#fff;
+    }
+
+    .photo img{
       width:100%;
       height:100%;
       object-fit: cover;
       display:block;
     }
-    .missing{
-      text-align:center;
-      color:#8b86a0;
+
+    .empty{
       font-size: 13px;
-      padding: 14px;
-      line-height: 1.3;
-    }
-
-    .btnrow{ display:flex; gap:8px; flex-wrap:wrap; }
-    a.btn{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding: 9px 11px;
-      border-radius: 999px;
-      border: 1px solid rgba(27,27,31,.18);
-      background: rgba(255,255,255,.9);
-      text-decoration:none;
-      color: var(--ink);
-      font-size: 12.5px;
-      font-weight: 700;
-      box-shadow: 0 8px 18px rgba(27,27,31,.06);
-      transition: transform .06s ease, box-shadow .12s ease;
-    }
-    a.btn:hover{
-      transform: translateY(-1px);
-      box-shadow: 0 10px 22px rgba(27,27,31,.09);
-    }
-
-    .footer{
-      margin-top: 14px;
-      color: var(--muted);
-      font-size: 12px;
+      color: #9a7f7f;
+      text-align:center;
+      padding: 16px;
       line-height: 1.4;
-      background: rgba(255,255,255,.65);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 12px 14px;
-      box-shadow: 0 8px 22px rgba(27,27,31,.05);
-      backdrop-filter: blur(6px);
     }
-    .tiny{ opacity: .9; }
+
+    .actions{
+      display:flex;
+      gap:8px;
+      justify-content:center;
+      flex-wrap:wrap;
+    }
+
+    a.btn{
+      display:inline-block;
+      padding:8px 16px;
+      border-radius: 999px;
+      text-decoration:none;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid #ccbaba;
+    }
+
+    /* ---------- FOOTER ---------- */
+
+    footer{
+      margin-top: 26px;
+      text-align: center;
+      font-size: 12.5px;
+      color: #f0dede;
+      line-height: 1.6;
+    }
   </style>
 </head>
 
 <body>
 <div class="wrap">
-  <div class="top">
-    <div>
-      <h1>daily check-ins ✨</h1>
-      <p class="subtitle">
-        Two people, same four moments. Upload at <b>10:00</b>, <b>14:00</b>, <b>18:00</b>, <b>22:00</b> in your <i>own</i> timezone.
-      </p>
-    </div>
-    <div class="note">white = not uploaded yet 🤍</div>
-  </div>
 
-  <div class="grid" id="grid">
-    <div></div>
-    <div class="head">
-      <p class="name">marta ✿</p>
-      <p class="meta" id="martaMeta"></p>
-    </div>
-    <div class="head">
-      <p class="name">luca ✦</p>
-      <p class="meta" id="lucaMeta"></p>
-    </div>
-  </div>
+<header>
+  <div class="date-line" id="dateLine"></div>
+  <h1>daily check-in</h1>
+  <p class="subtitle">
+    Marta uploads at 10:00, 14:00, 18:00, 22:00 in Warsaw.<br>
+    Luca uploads at 10:00, 14:00, 18:00, 22:00 in West Lafayette.
+  </p>
+</header>
 
-  <div class="footer">
-    <div><b>How to upload:</b> tap “Upload” → GitHub opens → drag & drop the photo into the big text box → <b>Submit new issue</b>.</div>
-    <div class="tiny">Tip: if the photo doesn’t show instantly, refresh — the page also checks every minute.</div>
+<div class="grid" id="grid">
+  <div></div>
+  <div class="head">
+    <p class="name">marta</p>
+    <p class="meta" id="martaMeta"></p>
   </div>
+  <div class="head">
+    <p class="name">luca</p>
+    <p class="meta" id="lucaMeta"></p>
+  </div>
+</div>
+
+<footer>
+  Upload a photo by opening the slot and attaching it to the GitHub page that appears.
+</footer>
+
 </div>
 
 <script>
@@ -217,152 +218,120 @@
 
   const PEOPLE = {
     marta: { tz: "Europe/Warsaw", label: "marta" },
-    luca:  { tz: "America/Indiana/Indianapolis", label: "luca" } // West Lafayette
+    luca:  { tz: "America/Indiana/Indianapolis", label: "luca" }
   };
 
-  const HOURS = [10, 14, 18, 22];
+  const HOURS = [10,14,18,22];
 
-  function ymdInTZ(date, tz) {
-    const parts = new Intl.DateTimeFormat("en-CA", {
+  function ymd(date, tz){
+    const p = new Intl.DateTimeFormat("en-CA", {
       timeZone: tz, year:"numeric", month:"2-digit", day:"2-digit"
     }).formatToParts(date);
-    const y = parts.find(p=>p.type==="year").value;
-    const m = parts.find(p=>p.type==="month").value;
-    const d = parts.find(p=>p.type==="day").value;
-    return `${y}-${m}-${d}`;
+    return `${p.find(x=>x.type==="year").value}-${p.find(x=>x.type==="month").value}-${p.find(x=>x.type==="day").value}`;
   }
 
-  function prettyMeta(tz, cityLabel) {
-    const d = new Date();
-    const nice = new Intl.DateTimeFormat("en-GB", {
-      timeZone: tz, weekday:"long", year:"numeric", month:"2-digit", day:"2-digit"
-    }).format(d);
-    const code = ymdInTZ(d, tz);
-    return `${cityLabel} • ${nice} (${code})`;
+  function prettyDate(tz){
+    return new Intl.DateTimeFormat("en-GB", {
+      timeZone: tz, weekday:"long", year:"numeric", month:"long", day:"numeric"
+    }).format(new Date());
   }
 
-  function issueTitle(person, dateStr, hour) {
-    // exact key used for matching
-    return `${person} ${dateStr} ${String(hour).padStart(2,"0")}:00`;
+  function issueTitle(person, date, hour){
+    return `${person} ${date} ${String(hour).padStart(2,"0")}:00`;
   }
 
-  function newIssueUrl(person, dateStr, hour) {
-    const title = encodeURIComponent(issueTitle(person, dateStr, hour));
+  function issueUrl(person, date, hour){
+    const title = encodeURIComponent(issueTitle(person, date, hour));
     const labels = encodeURIComponent(`${person},${hour}`);
-    const body = encodeURIComponent(
-`Drop the photo below (drag & drop).
-Slot: ${String(hour).padStart(2,"0")}:00
-Date (your timezone): ${dateStr}`
-    );
+    const body = encodeURIComponent(`Attach the photo below.`);
     return `https://github.com/${OWNER}/${REPO}/issues/new?title=${title}&labels=${labels}&body=${body}`;
   }
 
-  function extractFirstImageUrl(body) {
-    // markdown image
-    const md = body.match(/!\[[^\]]*\]\((https?:\/\/[^\s)]+)\)/i);
-    if (md) return md[1];
-
-    // new github user-attachments
-    const ua = body.match(/https?:\/\/github\.com\/user-attachments\/assets\/[^\s)]+/i);
-    if (ua) return ua[0];
-
-    // older user-images
-    const ui = body.match(/https?:\/\/user-images\.githubusercontent\.com\/[^\s)]+/i);
-    if (ui) return ui[0];
-
-    // last resort
-    const any = body.match(/https?:\/\/[^\s)]+\.(png|jpg|jpeg|webp|gif)/i);
-    if (any) return any[0];
-
+  function extractImage(body){
+    const patterns = [
+      /!\[[^\]]*\]\((https?:\/\/[^\s)]+)\)/i,
+      /https?:\/\/github\.com\/user-attachments\/assets\/[^\s)]+/i,
+      /https?:\/\/user-images\.githubusercontent\.com\/[^\s)]+/i
+    ];
+    for (const r of patterns){
+      const m = body.match(r);
+      if (m) return m[1] || m[0];
+    }
     return null;
   }
 
-  function makeCell(person, dateStr, hour) {
+  function makeCell(person, date, hour){
     const cell = document.createElement("div");
     cell.className = "cell";
-    cell.dataset.person = person;
-    cell.dataset.date = dateStr;
-    cell.dataset.hour = String(hour);
 
     const photo = document.createElement("div");
-    photo.className = "polaroid";
-    photo.innerHTML = `<div class="missing">not yet<br>🤍</div>`;
+    photo.className = "photo";
+    photo.innerHTML = `<div class="empty">not uploaded yet</div>`;
     cell.appendChild(photo);
 
-    const btnrow = document.createElement("div");
-    btnrow.className = "btnrow";
+    const actions = document.createElement("div");
+    actions.className = "actions";
 
     const up = document.createElement("a");
     up.className = "btn";
-    up.href = newIssueUrl(person, dateStr, hour);
+    up.textContent = "Upload";
+    up.href = issueUrl(person, date, hour);
     up.target = "_blank";
-    up.textContent = "Upload ⤴";
-    btnrow.appendChild(up);
+    actions.appendChild(up);
 
-    const view = document.createElement("a");
-    view.className = "btn";
-    view.href = `https://github.com/${OWNER}/${REPO}/issues?q=${encodeURIComponent(issueTitle(person, dateStr, hour))}`;
-    view.target = "_blank";
-    view.textContent = "See uploads ↗";
-    btnrow.appendChild(view);
+    cell.appendChild(actions);
 
-    cell.appendChild(btnrow);
+    cell.dataset.key = issueTitle(person, date, hour);
     return cell;
   }
 
-  function buildGrid() {
+  function build(){
     const grid = document.getElementById("grid");
 
-    const todayMarta = ymdInTZ(new Date(), PEOPLE.marta.tz);
-    const todayLuca  = ymdInTZ(new Date(), PEOPLE.luca.tz);
+    const todayM = ymd(new Date(), PEOPLE.marta.tz);
+    const todayL = ymd(new Date(), PEOPLE.luca.tz);
 
-    document.getElementById("martaMeta").textContent = prettyMeta(PEOPLE.marta.tz, "Warsaw");
-    document.getElementById("lucaMeta").textContent  = prettyMeta(PEOPLE.luca.tz, "West Lafayette");
+    document.getElementById("martaMeta").textContent = prettyDate(PEOPLE.marta.tz);
+    document.getElementById("lucaMeta").textContent  = prettyDate(PEOPLE.luca.tz);
 
-    for (const h of HOURS) {
-      const time = document.createElement("div");
-      time.className = "time";
-      time.textContent = `${String(h).padStart(2,"0")}:00`;
-      grid.appendChild(time);
+    document.getElementById("dateLine").textContent =
+      new Intl.DateTimeFormat("en-US", { month:"2-digit", day:"2-digit", year:"numeric" })
+      .format(new Date())
+      .replace(/\//g,"  |  ");
 
-      grid.appendChild(makeCell("marta", todayMarta, h));
-      grid.appendChild(makeCell("luca", todayLuca, h));
+    for (const h of HOURS){
+      const t = document.createElement("div");
+      t.className = "time";
+      t.textContent = `${String(h).padStart(2,"0")}:00`;
+      grid.appendChild(t);
+
+      grid.appendChild(makeCell("marta", todayM, h));
+      grid.appendChild(makeCell("luca", todayL, h));
     }
   }
 
-  async function loadIssuesAndFill() {
-    const url = `https://api.github.com/repos/${OWNER}/${REPO}/issues?state=all&per_page=100&sort=created&direction=desc`;
-    const res = await fetch(url, { headers: { "Accept": "application/vnd.github+json" } });
+  async function load(){
+    const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/issues?per_page=100&state=all`);
     if (!res.ok) return;
-
     const issues = await res.json();
 
-    // title -> img (newest wins)
     const map = new Map();
-    for (const it of issues) {
-      if (!it || !it.title || !it.body) continue;
-      const img = extractFirstImageUrl(it.body);
-      if (!img) continue;
-      if (!map.has(it.title)) map.set(it.title, img);
+    for (const it of issues){
+      const img = extractImage(it.body || "");
+      if (img && !map.has(it.title)) map.set(it.title, img);
     }
 
-    document.querySelectorAll(".cell").forEach(cell => {
-      const person = cell.dataset.person;
-      const dateStr = cell.dataset.date;
-      const hour = Number(cell.dataset.hour);
-      const key = issueTitle(person, dateStr, hour);
-      const imgUrl = map.get(key);
-
-      const photo = cell.querySelector(".polaroid");
-      if (imgUrl) {
-        photo.innerHTML = `<img alt="${key}" src="${imgUrl}">`;
+    document.querySelectorAll(".cell").forEach(c=>{
+      const img = map.get(c.dataset.key);
+      if (img){
+        c.querySelector(".photo").innerHTML = `<img src="${img}">`;
       }
     });
   }
 
-  buildGrid();
-  loadIssuesAndFill();
-  setInterval(loadIssuesAndFill, 60000);
+  build();
+  load();
+  setInterval(load, 60000);
 </script>
 </body>
 </html>
