@@ -306,9 +306,10 @@
       const t = document.createElement("div");
       t.className = "time";
       // Logic to convert 24h to 12h
+      const milTime = `${String(h).padStart(2,"0")}:00`;
       const suffix = h >= 12 ? "PM" : "AM";
-      const h12 = h % 12 || 12; // Converts 0 to 12 and 13-23 to 1-11
-      const displayTime = `${h12} ${suffix}`;
+      const h12 = h % 12 || 12;
+      const nonMilTime = `${h12} ${suffix}`;
     
       // This displays both. If you only want 12h, use: t.textContent = displayTime;
       t.innerHTML = `
