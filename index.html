@@ -311,7 +311,7 @@
       const displayTime = `${h12} ${suffix}`;
     
       // This displays both. If you only want 12h, use: t.textContent = displayTime;
-      t.innerHTML = `<span style="display:block; font-size:11px; opacity:0.6;">${String(h).padStart(2,"0")}:00</span>${displayTime}`;
+      t.innerHTML = `<span style="display:block; font-size:11px; opacity:0.6;">${String(h).padStart(2,"0")}:00${displayTime}</span>`;
       
       grid.appendChild(t);
     
