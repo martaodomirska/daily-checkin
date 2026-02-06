@@ -318,6 +318,7 @@
       grid.appendChild(makeCell("marta", dateM, h));
       grid.appendChild(makeCell("luca", dateL, h));
 }
+}
 
   async function load(){
     const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/issues?per_page=100&state=all&sort=created&direction=desc`);
