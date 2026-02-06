@@ -301,17 +301,23 @@
       new Intl.DateTimeFormat("en-US", { month:"2-digit", day:"2-digit", year:"numeric" })
       .format(new Date())
       .replace(/\//g,"  |  ");
-
+    
     for (const h of HOURS){
       const t = document.createElement("div");
       t.className = "time";
-      t.textContent = `${String(h).padStart(2,"0")}:00`;
+      // Logic to convert 24h to 12h
+      const suffix = h >= 12 ? "PM" : "AM";
+      const h12 = h % 12 || 12; // Converts 0 to 12 and 13-23 to 1-11
+      const displayTime = `${h12} ${suffix}`;
+    
+      // This displays both. If you only want 12h, use: t.textContent = displayTime;
+      t.innerHTML = `<span style="display:block; font-size:11px; opacity:0.6;">${String(h).padStart(2,"0")}:00</span>${displayTime}`;
+      
       grid.appendChild(t);
-
+    
       grid.appendChild(makeCell("marta", dateM, h));
       grid.appendChild(makeCell("luca", dateL, h));
-    }
-  }
+}
 
   async function load(){
     const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/issues?per_page=100&state=all&sort=created&direction=desc`);
