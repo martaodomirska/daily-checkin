@@ -313,7 +313,7 @@
     
       // This displays both. If you only want 12h, use: t.textContent = displayTime;
       t.innerHTML = `
-        <div>${milTime}</div>
+        <span>${milTime}</span>
         <div style="font-size: 13px; opacity: 0.6; font-weight: 400; margin-top: 5px;">${nonMilTime}</div>
       `;
       
@@ -321,7 +321,7 @@
     
       grid.appendChild(makeCell("marta", dateM, h));
       grid.appendChild(makeCell("luca", dateL, h));
-}
+  }
 }
 
   async function load(){
